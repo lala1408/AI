@@ -6,11 +6,33 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 
 # === 1. Daten einlesen ===
-df = pd.read_csv("wetterdaten.csv")
+df = pd.read_csv("weather_data.csv")
 
 # === 2. Feature- und Zielspalten definieren ===
-features = ["Globalstrahlung", "Temperatur", "Windgeschwindigkeit", "Bedeckung"]
-target = "PV_Leistung"
+features = [
+    "temperature_2_m_above_gnd",
+    "relative_humidity_2_m_above_gnd",
+    "mean_sea_level_pressure_MSL",
+    "total_precipitation_sfc",
+    "snowfall_amount_sfc",
+    "total_cloud_cover_sfc",
+    "high_cloud_cover_high_cld_lay",
+    "medium_cloud_cover_mid_cld_lay",
+    "low_cloud_cover_low_cld_lay",
+    "shortwave_radiation_backwards_sfc",
+    "wind_speed_10_m_above_gnd",
+    "wind_direction_10_m_above_gnd",
+    "wind_speed_80_m_above_gnd",
+    "wind_direction_80_m_above_gnd",
+    "wind_speed_900_mb",
+    "wind_direction_900_mb",
+    "wind_gust_10_m_above_gnd",
+    "angle_of_incidence",
+    "zenith",
+    "azimuth"
+]
+
+target = "generated_power_kw"
 
 X = df[features]
 y = df[target]
@@ -36,21 +58,17 @@ for name, modell in modelle.items():
     ergebnisse[name] = rmse
     print(f"{name}: RMSE = {rmse:.2f}")
 
-# === 6. (Optional) Bester RMSE hervorheben ===
+# === 6. Bestes Modell identifizieren ===
 beste = min(ergebnisse, key=ergebnisse.get)
 print(f"\n👉 Bestes Modell: {beste} mit RMSE = {ergebnisse[beste]:.2f}")
 
-# === 7. Vorhersage für neuen Datensatz mit ALLEN Modellen ===
-neuer_datensatz = pd.DataFrame([{
-    "Globalstrahlung": 800,
-    "Temperatur": 30,
-    "Windgeschwindigkeit": 2,
-    "Bedeckung": 0.1
-}])
-
+# === 7. Beispielwert prüfen ===
+row = 9
+neuer_datensatz = df[features].iloc[[row]]
 
 print("\n📊 Vorhersage für neuen Datensatz:")
 for name, modell in modelle.items():
     vorhersage = modell.predict(neuer_datensatz)[0]
-    print(f"{name}: {vorhersage:.2f} W")
+    print(f"{name}: {vorhersage:.2f} kW")
 
+print(f"Daten: {df[target].iloc[row]:.2f} kW")
